@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olho do Céu - MatolaSky</title>
+<style>
+body{margin:0;background:#020412;color:white;font-family:Arial;text-align:center;overflow:hidden}
+header{padding:12px;background:#0a102a;font-weight:bold;font-size:18px}
+canvas{width:100%;height:58vh;background:radial-gradient(ellipse at center,#0a194e 0%,#020412 70%);display:block}
+.panel{background:#101a3a;margin:8px;border-radius:12px;padding:10px}
+button{background:#3a6bff;color:white;border:0;padding:10px 16px;border-radius:20px;margin:4px;font-weight:bold}
+#lua{font-size:48px}
+</style>
+</head>
+<body>
+<header>🌌 OLHO DO CÉU - MATOLA SKY 🌌</header>
+<canvas id="ceu"></canvas>
+<div class="panel">
+<button onclick="mudarModo()">🛰️ Mudar Constelação</button>
+<button onclick="pedirSensor()">🧭 Ativar Bússola</button>
+<div id="info">Aponte o celular para o céu de Matola</div>
+</div>
+<div class="panel" style="display:flex;justify-content:space-around">
+<div><div id="lua">🌕</div><div id="fase">Lua Cheia</div></div>
+<div style="text-align:left;font-size:13px">
+<b>Próximos Eclipses Moçambique:</b><br>
+• 17 Fev 2026 - Anular (Sul)<br>
+• 6 Fev 2027 - Anular (Visível Matola)<br>
+• 2 Ago 2027 - Total<br>
+• 26 Jan 2028 - Anular
+</div>
+</div>
+<script>
+const canvas=document.getElementById('ceu');const ctx=canvas.getContext('2d');
+canvas.width=800;canvas.height=600;
+let constelacao=0;
+const estrelas=[];
+for(let i=0;i<250;i++)estrelas.push({x:Math.random()*800,y:Math.random()*600,r:Math.random()*2+0.3, brilho:Math.random()});
+
+function desenhar(){
+ctx.clearRect(0,0,800,600);
+estrelas.forEach(e=>{
+ctx.beginPath();ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
+ctx.fillStyle=`rgba(255,255,255,${0.4+e.brilho*0.6})`;ctx.fill();
+});
+ctx.strokeStyle="#3a6bff";ctx.lineWidth=1;
+if(constelacao==0){
+// Cruzeiro do Sul
+ctx.beginPath();ctx.moveTo(400,150);ctx.lineTo(380,220);ctx.lineTo(420,260);ctx.lineTo(440,190);ctx.lineTo(400,150);ctx.stroke();
+ctx.fillStyle="#fff";ctx.fillText("Cruzeiro do Sul - Visível em Matola",300,100);
+}
+if(constelacao==1){
+ctx.beginPath();ctx.moveTo(200,200);ctx.lineTo(350,250);ctx.lineTo(500,200);ctx.lineTo(600,300);ctx.stroke();
+ctx.fillText("Escorpião",350,180);
+}
+if(constelacao==2){
+ctx.beginPath();ctx.moveTo(300,120);ctx.lineTo(400,300);ctx.lineTo(500,120);ctx.stroke();
+ctx.fillText("Orion",370,80);
+}
+requestAnimationFrame(desenhar);
+}
+desenhar();
+function mudarModo(){constelacao=(constelacao+1)%3;document.getElementById('info').innerText=["Modo: Cruzeiro do Sul","Modo: Escorpião","Modo: Orion"][constelacao]}
+
+function pedirSensor(){
+if(typeof DeviceOrientationEvent.requestPermission==='function'){
+DeviceOrientationEvent.requestPermission().then(r=>{if(r=='granted')window.addEventListener('deviceorientation',mover);});
+}else{window.addEventListener('deviceorientation',mover);}
+document.getElementById('info').innerText="Bússola Ativa! Mexa o celular";
+}
+function mover(e){
+let shift=(e.alpha||0)/360*100;
+estrelas.forEach(s=>{s.x+=shift*0.02});
+}
+// Fase da lua simples
+const fases=["🌑","🌒","🌓","🌔","🌕","🌖","🌗","🌘"];
+const hoje=new Date().getDate()%8;
+document.getElementById('lua').innerText=fases[hoje];
+document.getElementById('fase').innerText="Fase de hoje - Matola";
+</script>
+</body>
+</html>
